@@ -4,5 +4,5 @@ go:
   - 1.8
   - master
 
-install:
-  - go get github.com/veandco/go-sdl2/sdl
+before_install:
+  - sudo apt-get install --force-yes libsdl2{,-mixer,-image,-ttf}-dev
