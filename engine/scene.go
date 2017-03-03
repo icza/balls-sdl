@@ -16,7 +16,7 @@ const (
 )
 
 // Scene is the world of the demo.
-// Contains the balls, simulates the "world" and paints it on the screen.
+// Contains the engine, controls the simulation and presents it on the screen.
 type Scene struct {
 	// r is the Renderer used to paint.
 	r *sdl.Renderer
@@ -27,8 +27,8 @@ type Scene struct {
 	// wg is a WaitGroup to wait Run to return
 	wg *sync.WaitGroup
 
-	// balls of the simulation
-	balls []*ball
+	// e is the engine
+	e *engine
 }
 
 // NewScene creates a new Scene.
@@ -37,6 +37,7 @@ func NewScene(r *sdl.Renderer) *Scene {
 		r:    r,
 		quit: make(chan struct{}),
 		wg:   &sync.WaitGroup{},
+		e:    newEngine(),
 	}
 
 	// Add one here (and not in Run()) because if Stop() is called before
@@ -59,8 +60,8 @@ func (s *Scene) Run() {
 simLoop:
 	for {
 		select {
-		case <-physicsTicker.C:
-			s.recalc()
+		case now := <-physicsTicker.C:
+			s.e.recalc(now)
 		case <-presentTicker.C:
 			s.present()
 		case <-s.quit:
@@ -75,10 +76,6 @@ func (s *Scene) Stop() {
 	s.wg.Wait()
 }
 
-// recalc recalculates the scene.
-func (s *Scene) recalc() {
-}
-
 // present paints the scene.
 func (s *Scene) present() {
 	r := s.r
@@ -89,6 +86,19 @@ func (s *Scene) present() {
 	// Paint background and frame:
 	r.SetDrawColor(150, 150, 150, 255)
 	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: 800, H: 600})
+
+	// Paint balls:
+	r.SetDrawColor(200, 80, 0, 255)
+	for _, b := range s.e.balls {
+		_ = b
+		//gfx.FilledCircleRGBA()
+		r.DrawRect(&sdl.Rect{
+			X: int32(real(b.pos) - b.r),
+			Y: int32(imag(b.pos) - b.r),
+			W: int32(b.r * 2),
+			H: int32(b.r * 2),
+		})
+	}
 
 	r.Present()
 }
