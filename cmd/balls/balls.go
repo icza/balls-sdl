@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/icza/balls/engine"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -40,10 +41,8 @@ func run() (exitCode int) {
 	}
 	defer r.Destroy()
 
-	r.Clear()
-	r.SetDrawColor(150, 150, 150, 255)
-	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: 800, H: 600})
-	r.Present()
+	scene := engine.NewScene(r)
+	go scene.Run()
 
 	for {
 		e := sdl.WaitEvent()
@@ -51,6 +50,7 @@ func run() (exitCode int) {
 			break
 		}
 	}
+	scene.Stop()
 
 	return 0
 }
