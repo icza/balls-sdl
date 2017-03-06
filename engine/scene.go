@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
+	gfx "github.com/veandco/go-sdl2/sdl_gfx"
 )
 
 const (
@@ -94,26 +95,30 @@ func (s *Scene) present() {
 	r.SetDrawColor(200, 80, 0, 255)
 	for _, b := range s.e.balls {
 		paintBall(r, b)
-		// gfx.FilledCircleRGBA(r,
-		// 	int(real(b.pos)),
-		// 	int(imag(b.pos)),
-		// 	int(b.r),
-		// 	200, 80, 0, 255,
-		// )
 	}
 
 	r.Present()
 }
 
 func paintBall(r *sdl.Renderer, b *ball) {
-	// TODO Predraw in a texture and cache it?
-	//t, _ := r.CreateTexture(sdl.PIXELFORMAT_RGBA8888, sdl.TEXTUREACCESS_STATIC, int(b.r*2), int(b.r*2))
+	// If performance becomes an issue, predraw on a texture,
+	// cache it and just present the texture.
 
-	r.SetDrawColor(b.c.R, b.c.G, b.c.B, b.c.A)
-	r.FillRect(&sdl.Rect{
-		X: int32(real(b.pos) - b.r),
-		Y: int32(imag(b.pos) - b.r),
-		W: int32(b.r * 2),
-		H: int32(b.r * 2),
-	})
+	x, y := int(real(b.pos)), int(imag(b.pos))
+
+	// Fill circles going from outside
+	gran := 7
+	for i := 1; i <= gran; i++ {
+		f := 1 - float64(i)/float64(gran+1)
+
+		// Color is darker outside:
+		col := func(c uint8) uint8 {
+			return c - uint8(float64(c)*0.7*f)
+		}
+
+		gfx.FilledCircleRGBA(r, x, y, int(b.r*f),
+			col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
+	}
+
+	gfx.PixelRGBA(r, x, y, 255, 255, 255, b.c.A)
 }
