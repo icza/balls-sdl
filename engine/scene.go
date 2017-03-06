@@ -9,10 +9,10 @@ import (
 
 const (
 	// physicsPeriod is the period of model recalculation
-	physicsPeriod = time.Millisecond * 10
+	physicsPeriod = time.Millisecond * 10 // 100 / sec
 
 	// presentPeriod is the period of the scene presentation
-	presentPeriod = time.Millisecond * 50 // 20 FPS
+	presentPeriod = time.Millisecond * 40 // 25 FPS
 )
 
 // Scene is the world of the demo.
@@ -33,11 +33,13 @@ type Scene struct {
 
 // NewScene creates a new Scene.
 func NewScene(r *sdl.Renderer) *Scene {
+	w, h, _ := r.GetRendererOutputSize()
+
 	s := &Scene{
 		r:    r,
 		quit: make(chan struct{}),
 		wg:   &sync.WaitGroup{},
-		e:    newEngine(),
+		e:    newEngine(w, h),
 	}
 
 	// Add one here (and not in Run()) because if Stop() is called before
@@ -84,14 +86,19 @@ func (s *Scene) present() {
 	r.Clear()
 
 	// Paint background and frame:
+	w, h, _ := r.GetRendererOutputSize()
 	r.SetDrawColor(150, 150, 150, 255)
-	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: 800, H: 600})
+	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: int32(w), H: int32(h)})
 
 	// Paint balls:
 	r.SetDrawColor(200, 80, 0, 255)
 	for _, b := range s.e.balls {
-		_ = b
-		//gfx.FilledCircleRGBA()
+		// gfx.FilledCircleRGBA(r,
+		// 	int(real(b.pos)),
+		// 	int(imag(b.pos)),
+		// 	int(b.r),
+		// 	200, 80, 0, 255,
+		// )
 		r.DrawRect(&sdl.Rect{
 			X: int32(real(b.pos) - b.r),
 			Y: int32(imag(b.pos) - b.r),

@@ -6,3 +6,5 @@
 
 Bouncing balls demo written in Go. It uses [SDL2](https://www.libsdl.org/)
 for graphics and events through the [go-sdl2](https://github.com/veandco/go-sdl2) Go binding.
+
+Status: WIP (work-in-progress)...

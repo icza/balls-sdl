@@ -8,10 +8,10 @@ import (
 
 const (
 	// gravity is the gravitational constant (vector)
-	gravity = 0 + 120i
+	gravity = 0 + 150i
 
 	// initialMaxAbsV is the max of the absolute of the initial speed vector
-	initialMaxAbsV = 100
+	initialMaxAbsV = 300
 
 	// minR is the minimum radius of the ball
 	minR = 10
@@ -50,9 +50,9 @@ func newBall() *ball {
 func (b *ball) recalc(dtSec float64) {
 	f := complex(dtSec, 0)
 
-	// Step
-	b.pos += b.v * f
-
 	// simulate gravity:
 	b.v += gravity * f
+
+	// Step
+	b.pos += b.v * f
 }

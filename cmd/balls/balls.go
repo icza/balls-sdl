@@ -3,7 +3,9 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/icza/balls/engine"
 	"github.com/veandco/go-sdl2/sdl"
@@ -14,6 +16,7 @@ const (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
 	os.Exit(run())
 }
 
