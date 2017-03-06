@@ -93,19 +93,27 @@ func (s *Scene) present() {
 	// Paint balls:
 	r.SetDrawColor(200, 80, 0, 255)
 	for _, b := range s.e.balls {
+		paintBall(r, b)
 		// gfx.FilledCircleRGBA(r,
 		// 	int(real(b.pos)),
 		// 	int(imag(b.pos)),
 		// 	int(b.r),
 		// 	200, 80, 0, 255,
 		// )
-		r.DrawRect(&sdl.Rect{
-			X: int32(real(b.pos) - b.r),
-			Y: int32(imag(b.pos) - b.r),
-			W: int32(b.r * 2),
-			H: int32(b.r * 2),
-		})
 	}
 
 	r.Present()
+}
+
+func paintBall(r *sdl.Renderer, b *ball) {
+	// TODO Predraw in a texture and cache it?
+	//t, _ := r.CreateTexture(sdl.PIXELFORMAT_RGBA8888, sdl.TEXTUREACCESS_STATIC, int(b.r*2), int(b.r*2))
+
+	r.SetDrawColor(b.c.R, b.c.G, b.c.B, b.c.A)
+	r.FillRect(&sdl.Rect{
+		X: int32(real(b.pos) - b.r),
+		Y: int32(imag(b.pos) - b.r),
+		W: int32(b.r * 2),
+		H: int32(b.r * 2),
+	})
 }

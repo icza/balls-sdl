@@ -4,6 +4,8 @@ import (
 	"math"
 	"math/cmplx"
 	"math/rand"
+
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
@@ -30,17 +32,24 @@ type ball struct {
 
 	// v is the velocity (vector) of the ball
 	v complex128
+
+	// c is the color of the ball
+	c sdl.Color
 }
 
 // newBall creates a new ball.
 func newBall() *ball {
 	// TODO
-	v := cmplx.Rect(rand.Float64()*initialMaxAbsV, rand.Float64()*math.Pi*2)
-
 	b := &ball{
 		pos: 400 + 300i,
 		r:   minR + rand.Float64()*(maxR-minR),
-		v:   v,
+		v:   cmplx.Rect(rand.Float64()*initialMaxAbsV, rand.Float64()*math.Pi*2),
+		c: sdl.Color{
+			R: 127 + uint8(rand.Int31n(128)),
+			G: 127 + uint8(rand.Int31n(128)),
+			B: 127 + uint8(rand.Int31n(128)),
+			A: 255,
+		},
 	}
 
 	return b
