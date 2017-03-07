@@ -63,7 +63,7 @@ simLoop:
 		case now := <-physicsTicker.C:
 			s.e.recalc(now)
 		case <-presentTicker.C:
-			s.present()
+			sdl.Do(s.present)
 		case <-s.quit:
 			break simLoop
 		}
