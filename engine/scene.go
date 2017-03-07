@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/icza/balls/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -93,6 +94,10 @@ func (s *Scene) present() {
 		paintBall(r, b)
 	}
 
+	// Paint ODS
+	r.SetDrawColor(200, 200, 100, 255)
+	gfx.DrawString(r, "X, Q: Exit   F: Fullscreen", 10, 20)
+
 	r.Present()
 }
 
@@ -114,27 +119,9 @@ func paintBall(r *sdl.Renderer, b *ball) {
 		}
 
 		r.SetDrawColor(col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
-		fillCircle(r, x, y, int(b.r*f))
+		gfx.FillCircle(r, x, y, int(b.r*f))
 	}
 
 	r.SetDrawColor(255, 255, 255, b.c.A)
 	r.DrawPoint(x, y)
-}
-
-// fillCircle draws a filled circle.
-func fillCircle(r *sdl.Renderer, x0, y0, rad int) {
-	// Algorithm: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
-	for x, y, err := rad, 0, 0; x > 0; {
-		r.DrawLine(x0-x, y0-y, x0+x, y0-y)
-		r.DrawLine(x0-x, y0+y, x0+x, y0+y)
-
-		if err <= 0 {
-			y++
-			err += 2*y + 1
-		}
-		if err > 0 {
-			x--
-			err -= 2*x + 1
-		}
-	}
 }
