@@ -66,7 +66,7 @@ func run() (exitCode int) {
 	r.SetLogicalSize(w, h)
 
 	// Disable minimize on focus loss:
-	sdl.SetHint(sdl.HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0")
+	sdl.SetHint(sdl.HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS2, "0")
 
 	scene := engine.NewScene(r, w, h)
 	go scene.Run()
