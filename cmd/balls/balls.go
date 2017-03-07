@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/icza/balls/engine"
@@ -16,6 +17,7 @@ const (
 )
 
 func main() {
+	runtime.LockOSThread()
 	rand.Seed(time.Now().UnixNano())
 	os.Exit(run())
 }
@@ -63,6 +65,9 @@ func run() (exitCode int) {
 	// the world size does not chane:
 	r.SetLogicalSize(w, h)
 
+	// Disable minimize on focus loss:
+	sdl.SetHint(sdl.HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0")
+
 	scene := engine.NewScene(r, w, h)
 	go scene.Run()
 
@@ -91,7 +96,7 @@ func handleEvent(event sdl.Event) (quit bool) {
 				fullScreen = !fullScreen
 				lastFSSwitch = time.Now()
 			}
-		case sdl.K_x:
+		case sdl.K_x, sdl.K_q:
 			return true
 		}
 	case *sdl.QuitEvent:
