@@ -16,7 +16,7 @@ before_install:
   - ./configure --prefix=$SDL2DIR
   - make
   - make install
-  - export PKG_CONFIG_PATH=$SDL2DIR
+  - export PKG_CONFIG_PATH=`pwd`
   - echo $PKG_CONFIG_PATH
   - ls -l $PKG_CONFIG_PATH
   - popd
