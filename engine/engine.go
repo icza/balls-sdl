@@ -6,6 +6,9 @@ import (
 )
 
 const (
+	// physicsPeriod is the period of model recalculation
+	physicsPeriod = time.Millisecond * 10 // 100 / sec
+
 	// maxBalls is the max number of balls
 	maxBalls = 20
 
@@ -42,6 +45,16 @@ func newEngine(w, h int) *engine {
 
 // recalc recalculates the world.
 func (e *engine) recalc(now time.Time) {
+	// dt might be "big", much bigger than physics period, in which case
+	// the balls might move huge distances. To avoid any "unexpected" states,
+	// do granular movement:
+	for t := e.lastCalc; t.Before(now); t = t.Add(physicsPeriod) {
+		e.recalcInternal(t)
+	}
+}
+
+// recalcInternal recalculates the world.
+func (e *engine) recalcInternal(now time.Time) {
 	dt := now.Sub(e.lastCalc)
 
 	if len(e.balls) < maxBalls && now.Sub(e.lastSpawned) > ballSpawnPeriod {

@@ -9,9 +9,6 @@ import (
 )
 
 const (
-	// physicsPeriod is the period of model recalculation
-	physicsPeriod = time.Millisecond * 10 // 100 / sec
-
 	// presentPeriod is the period of the scene presentation
 	presentPeriod = time.Millisecond * 20 // 50 FPS
 )
@@ -53,17 +50,14 @@ func NewScene(r *sdl.Renderer, w, h int) *Scene {
 func (s *Scene) Run() {
 	defer s.wg.Done()
 
-	physicsTicker := time.NewTicker(physicsPeriod)
-	defer physicsTicker.Stop()
-	presentTicker := time.NewTicker(presentPeriod)
-	defer presentTicker.Stop()
+	ticker := time.NewTicker(presentPeriod)
+	defer ticker.Stop()
 
 simLoop:
 	for {
 		select {
-		case now := <-physicsTicker.C:
+		case now := <-ticker.C:
 			s.e.recalc(now)
-		case <-presentTicker.C:
 			sdl.Do(s.present)
 		case <-s.quit:
 			break simLoop
@@ -109,7 +103,7 @@ func paintBall(r *sdl.Renderer, b *ball) {
 	x, y := int(real(b.pos)), int(imag(b.pos))
 
 	// Fill circles going from outside
-	gran := 8
+	gran := 10
 	for i := 1; i <= gran; i++ {
 		f := 1 - float64(i)/float64(gran+1)
 

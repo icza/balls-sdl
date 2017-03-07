@@ -62,7 +62,7 @@ func run() (exitCode int) {
 	defer r.Destroy()
 
 	// set logical size, so if window gets resized (full screen),
-	// the world size does not chane:
+	// the world size does not change:
 	r.SetLogicalSize(w, h)
 
 	// Disable minimize on focus loss:

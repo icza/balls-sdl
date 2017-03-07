@@ -10,10 +10,10 @@ import (
 
 const (
 	// gravity is the gravitational constant (vector)
-	gravity = 0 + 700i
+	gravity = 0 + 800i
 
 	// initialMaxAbsV is the max of the absolute of the initial speed vector
-	initialMaxAbsV = 200
+	initialMaxAbsV = 350
 
 	// minR is the minimum radius of the ball
 	minR = 10
@@ -40,7 +40,7 @@ type ball struct {
 // newBall creates a new ball.
 func newBall(w, h int) *ball {
 	b := &ball{
-		pos: complex(float64(w)/2, float64(h)/4),
+		pos: complex(float64(w)*0.5, float64(h)*0.3),
 		r:   minR + rand.Float64()*(maxR-minR),
 		v:   cmplx.Rect(rand.Float64()*initialMaxAbsV, rand.Float64()*math.Pi*2),
 		c: sdl.Color{
