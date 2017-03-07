@@ -15,3 +15,6 @@ before_install:
   - ./configure --prefix=$SDL2DIR
   - make
   - make install
+
+script:
+  - go test ./...
