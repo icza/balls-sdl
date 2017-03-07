@@ -9,7 +9,6 @@ before_install:
   - cd ~
   - mkdir sdl2install
   - export SDL2DIR="`pwd`/sdl2install"
-
   - wget https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
   - tar xf SDL2-2.0.5.tar.gz
   - cd SDL2-2.0.5
@@ -17,6 +16,4 @@ before_install:
   - make
   - make install
   - export PKG_CONFIG_PATH=`pwd`
-  - echo $PKG_CONFIG_PATH
-  - ls -l $PKG_CONFIG_PATH
   - popd
