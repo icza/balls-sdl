@@ -16,4 +16,5 @@ before_install:
   - ./configure --prefix=$SDL2DIR
   - make
   - make install
+  - export PKG_CONFIG_PATH=$SDL2DIR:$PKG_CONFIG_PATH
   - popd
