@@ -70,8 +70,9 @@ func (e *engine) recalc(now time.Time) {
 
 // spawnBall spawns a new ball.
 func (e *engine) spawnBall() {
-	// TODO
-	b := newBall()
+	b := newBall(e.w, e.h)
+
+	// TODO check if no collision
 
 	e.balls = append(e.balls, b)
 }

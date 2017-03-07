@@ -20,6 +20,15 @@ func main() {
 	os.Exit(run())
 }
 
+var (
+	// win is the main window
+	win *sdl.Window
+	// fullScreen tells the current FS status
+	fullScreen bool
+	// lastFSSwitch holds the last FS switch timestamp (to limit the switching rate)
+	lastFSSwitch time.Time
+)
+
 func run() (exitCode int) {
 	var err error
 	fail := func(op string, exitCode int) int {
@@ -32,19 +41,29 @@ func run() (exitCode int) {
 	}
 	defer sdl.Quit()
 
-	var win *sdl.Window
-	if win, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, 800, 600, sdl.WINDOW_SHOWN); err != nil {
-		return fail("create window", 2)
+	bounds := new(sdl.Rect)
+	if err = sdl.GetDisplayBounds(0, bounds); err != nil {
+		return fail("get display bounds", 2)
+	}
+	// Start with a half-size window
+	w, h := int(bounds.W)/2, int(bounds.H)/2
+
+	if win, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, w, h, sdl.WINDOW_SHOWN); err != nil {
+		return fail("create window", 3)
 	}
 	defer win.Destroy()
 
 	var r *sdl.Renderer
 	if r, err = sdl.CreateRenderer(win, -1, sdl.RENDERER_ACCELERATED); err != nil {
-		return fail("create renderer", 3)
+		return fail("create renderer", 4)
 	}
 	defer r.Destroy()
 
-	scene := engine.NewScene(r)
+	// set logical size, so if window gets resized (full screen),
+	// the world size does not chane:
+	r.SetLogicalSize(w, h)
+
+	scene := engine.NewScene(r, w, h)
 	go scene.Run()
 
 	for {
@@ -60,6 +79,21 @@ func run() (exitCode int) {
 
 func handleEvent(event sdl.Event) (quit bool) {
 	switch e := event.(type) {
+	case *sdl.KeyDownEvent:
+		switch e.Keysym.Sym {
+		case sdl.K_f:
+			if time.Since(lastFSSwitch) > time.Second {
+				flags := uint32(0)
+				if !fullScreen {
+					flags = sdl.WINDOW_FULLSCREEN_DESKTOP
+				}
+				win.SetFullscreen(flags)
+				fullScreen = !fullScreen
+				lastFSSwitch = time.Now()
+			}
+		case sdl.K_x:
+			return true
+		}
 	case *sdl.QuitEvent:
 		return true
 	// Ignored events:

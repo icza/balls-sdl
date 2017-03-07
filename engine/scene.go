@@ -32,9 +32,7 @@ type Scene struct {
 }
 
 // NewScene creates a new Scene.
-func NewScene(r *sdl.Renderer) *Scene {
-	w, h, _ := r.GetRendererOutputSize()
-
+func NewScene(r *sdl.Renderer, w, h int) *Scene {
 	s := &Scene{
 		r:    r,
 		quit: make(chan struct{}),
@@ -86,9 +84,8 @@ func (s *Scene) present() {
 	r.Clear()
 
 	// Paint background and frame:
-	w, h, _ := r.GetRendererOutputSize()
-	r.SetDrawColor(150, 150, 150, 255)
-	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: int32(w), H: int32(h)})
+	r.SetDrawColor(100, 100, 100, 255)
+	r.DrawRect(&sdl.Rect{X: 0, Y: 0, W: int32(s.e.w), H: int32(s.e.h)})
 
 	// Paint balls:
 	r.SetDrawColor(200, 80, 0, 255)
@@ -107,7 +104,7 @@ func paintBall(r *sdl.Renderer, b *ball) {
 	x, y := int(real(b.pos)), int(imag(b.pos))
 
 	// Fill circles going from outside
-	gran := 7
+	gran := 8
 	for i := 1; i <= gran; i++ {
 		f := 1 - float64(i)/float64(gran+1)
 
@@ -127,10 +124,7 @@ func paintBall(r *sdl.Renderer, b *ball) {
 // fillCircle draws a filled circle.
 func fillCircle(r *sdl.Renderer, x0, y0, rad int) {
 	// Algorithm: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
-
-	x, y, err := rad, 0, 0
-
-	for x > 0 {
+	for x, y, err := rad, 0, 0; x > 0; {
 		r.DrawLine(x0-x, y0-y, x0+x, y0-y)
 		r.DrawLine(x0-x, y0+y, x0+x, y0+y)
 

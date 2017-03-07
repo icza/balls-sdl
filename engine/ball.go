@@ -38,10 +38,9 @@ type ball struct {
 }
 
 // newBall creates a new ball.
-func newBall() *ball {
-	// TODO
+func newBall(w, h int) *ball {
 	b := &ball{
-		pos: 400 + 300i,
+		pos: complex(float64(w)/2, float64(h)/2),
 		r:   minR + rand.Float64()*(maxR-minR),
 		v:   cmplx.Rect(rand.Float64()*initialMaxAbsV, rand.Float64()*math.Pi*2),
 		c: sdl.Color{
