@@ -94,7 +94,7 @@ func (s *Scene) present() {
 		paintBall(r, b)
 	}
 
-	// Paint ODS
+	// Paint OSD:
 	r.SetDrawColor(200, 200, 100, 255)
 	gfx.DrawString(r, "X, Q: Exit   F: Fullscreen", 10, 20)
 

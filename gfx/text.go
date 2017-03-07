@@ -33,6 +33,7 @@ func DrawString(r *sdl.Renderer, s string, x, y int) {
 	d.DrawString(s)
 }
 
+// renderImage is a draw.Image implementation that targets an sdl.Renderer.
 type rendererImage struct {
 	r      *sdl.Renderer
 	bounds image.Rectangle
