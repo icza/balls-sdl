@@ -4,7 +4,7 @@ go:
   - 1.8
   - master
 
-install:
+before_install:
   - pushd .
   - cd ~
   - mkdir sdl2install
