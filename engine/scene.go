@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
+	gfx "github.com/veandco/go-sdl2/sdl_gfx"
 )
 
 const (
@@ -115,6 +116,9 @@ func paintBall(r *sdl.Renderer, b *ball) {
 
 		r.SetDrawColor(col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
 		fillCircle(r, x, y, int(b.r*f))
+
+		gfx.FilledCircleRGBA(r, x, y, int(b.r*f),
+			col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
 	}
 
 	r.SetDrawColor(255, 255, 255, b.c.A)
