@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
-	gfx "github.com/veandco/go-sdl2/sdl_gfx"
 )
 
 const (
@@ -13,7 +12,7 @@ const (
 	physicsPeriod = time.Millisecond * 10 // 100 / sec
 
 	// presentPeriod is the period of the scene presentation
-	presentPeriod = time.Millisecond * 40 // 25 FPS
+	presentPeriod = time.Millisecond * 20 // 50 FPS
 )
 
 // Scene is the world of the demo.
@@ -100,6 +99,7 @@ func (s *Scene) present() {
 	r.Present()
 }
 
+// paintBall paints the picture of a ball, a filled circle with 3D effects.
 func paintBall(r *sdl.Renderer, b *ball) {
 	// If performance becomes an issue, predraw on a texture,
 	// cache it and just present the texture.
@@ -116,9 +116,31 @@ func paintBall(r *sdl.Renderer, b *ball) {
 			return c - uint8(float64(c)*0.7*f)
 		}
 
-		gfx.FilledCircleRGBA(r, x, y, int(b.r*f),
-			col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
+		r.SetDrawColor(col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
+		fillCircle(r, x, y, int(b.r*f))
 	}
 
-	gfx.PixelRGBA(r, x, y, 255, 255, 255, b.c.A)
+	r.SetDrawColor(255, 255, 255, b.c.A)
+	r.DrawPoint(x, y)
+}
+
+// fillCircle draws a filled circle.
+func fillCircle(r *sdl.Renderer, x0, y0, rad int) {
+	// Algorithm: https://en.wikipedia.org/wiki/Midpoint_circle_algorithm
+
+	x, y, err := rad, 0, 0
+
+	for x > 0 {
+		r.DrawLine(x0-x, y0-y, x0+x, y0-y)
+		r.DrawLine(x0-x, y0+y, x0+x, y0+y)
+
+		if err <= 0 {
+			y++
+			err += 2*y + 1
+		}
+		if err > 0 {
+			x--
+			err -= 2*x + 1
+		}
+	}
 }
