@@ -4,7 +4,7 @@ go:
   - 1.8
   - master
 
-install:
+before_install:
   - cd ~
   - mkdir sdl2install
   - export SDL2DIR="`pwd`/sdl2install"
@@ -15,5 +15,3 @@ install:
   - ./configure --prefix=$SDL2DIR
   - make
   - make install
-
-script: go test ./...
