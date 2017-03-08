@@ -35,7 +35,10 @@ func DrawString(r *sdl.Renderer, s string, x, y int) {
 
 // renderImage is a draw.Image implementation that targets an sdl.Renderer.
 type rendererImage struct {
-	r      *sdl.Renderer
+	// r is the wrapped Renderer
+	r *sdl.Renderer
+
+	// bounds to report by Image.Bounds()
 	bounds image.Rectangle
 }
 

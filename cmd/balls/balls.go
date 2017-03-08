@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"runtime"
 	"time"
 
 	"github.com/icza/balls/engine"
@@ -17,7 +16,6 @@ const (
 )
 
 func main() {
-	runtime.LockOSThread()
 	rand.Seed(time.Now().UnixNano())
 	os.Exit(run())
 }
@@ -25,8 +23,10 @@ func main() {
 var (
 	// win is the main window
 	win *sdl.Window
+
 	// fullScreen tells the current FS status
 	fullScreen bool
+
 	// lastFSSwitch holds the last FS switch timestamp (to limit the switching rate)
 	lastFSSwitch time.Time
 )
@@ -38,43 +38,71 @@ func run() (exitCode int) {
 		return exitCode
 	}
 
-	if err = sdl.Init(sdl.INIT_VIDEO); err != nil {
+	sdl.Do(func() {
+		err = sdl.Init(sdl.INIT_VIDEO)
+	})
+	if err != nil {
 		return fail("init SDL video", 1)
 	}
-	defer sdl.Quit()
+	defer sdl.Do(sdl.Quit)
 
 	bounds := new(sdl.Rect)
-	if err = sdl.GetDisplayBounds(0, bounds); err != nil {
+	sdl.Do(func() {
+		err = sdl.GetDisplayBounds(0, bounds)
+	})
+	if err != nil {
 		return fail("get display bounds", 2)
 	}
 	// Start with a half-size window
 	w, h := int(bounds.W)/2, int(bounds.H)/2
 
-	if win, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, w, h, sdl.WINDOW_SHOWN); err != nil {
+	sdl.Do(func() {
+		win, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, w, h, sdl.WINDOW_SHOWN)
+	})
+	if err != nil {
 		return fail("create window", 3)
 	}
-	defer win.Destroy()
+	defer sdl.Do(win.Destroy)
 
 	var r *sdl.Renderer
-	if r, err = sdl.CreateRenderer(win, -1, sdl.RENDERER_ACCELERATED); err != nil {
+	sdl.Do(func() {
+		r, err = sdl.CreateRenderer(win, -1, sdl.RENDERER_ACCELERATED)
+	})
+	if err != nil {
 		return fail("create renderer", 4)
 	}
-	defer r.Destroy()
+	defer sdl.Do(r.Destroy)
 
-	// set logical size, so if window gets resized (full screen),
-	// the world size does not change:
-	r.SetLogicalSize(w, h)
+	sdl.Do(func() {
+		// set logical size, so if window gets resized (full screen),
+		// the world size does not change:
+		err = r.SetLogicalSize(w, h)
+	})
+	if err != nil {
+		return fail("set logical size", 5)
+	}
 
-	// Disable minimize on focus loss:
-	sdl.SetHint(sdl.HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0")
+	sdl.Do(func() {
+		// Disable minimize on focus loss:
+		if !sdl.SetHint(sdl.HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0") {
+			log.Println("Waring: Failed to disable HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS!")
+		}
+	})
 
 	scene := engine.NewScene(r, w, h)
 	go scene.Run()
 
 	for {
-		e := sdl.WaitEvent()
-		if quit := handleEvent(e); quit {
-			break
+		var e sdl.Event
+		sdl.Do(func() {
+			e = sdl.PollEvent()
+		})
+		if e != nil {
+			if quit := handleEvent(e); quit {
+				break
+			}
+		} else {
+			time.Sleep(time.Millisecond)
 		}
 	}
 	scene.Stop()
@@ -87,12 +115,14 @@ func handleEvent(event sdl.Event) (quit bool) {
 	case *sdl.KeyDownEvent:
 		switch e.Keysym.Sym {
 		case sdl.K_f:
-			if time.Since(lastFSSwitch) > time.Second {
+			if time.Since(lastFSSwitch) > time.Millisecond*500 {
 				flags := uint32(0)
 				if !fullScreen {
 					flags = sdl.WINDOW_FULLSCREEN_DESKTOP
 				}
-				win.SetFullscreen(flags)
+				sdl.Do(func() {
+					win.SetFullscreen(flags)
+				})
 				fullScreen = !fullScreen
 				lastFSSwitch = time.Now()
 			}

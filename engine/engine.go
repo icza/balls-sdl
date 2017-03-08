@@ -19,7 +19,7 @@ const (
 // engine is the simulation engine.
 // Contains the balls and simulates the "world".
 type engine struct {
-	// width and height of the world
+	// w and h are the width and height of the world
 	w, h int
 
 	// lastCalc is the last calculation timestamp
