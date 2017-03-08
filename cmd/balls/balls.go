@@ -31,6 +31,7 @@ var (
 	lastFSSwitch time.Time
 )
 
+// run runs the demo.
 func run() (exitCode int) {
 	var err error
 	fail := func(op string, exitCode int) int {
@@ -89,8 +90,8 @@ func run() (exitCode int) {
 		}
 	})
 
-	scene := engine.NewScene(r, w, h)
-	go scene.Run()
+	eng := engine.NewEngine(r, w, h)
+	go eng.Run()
 
 	for {
 		var e sdl.Event
@@ -105,11 +106,12 @@ func run() (exitCode int) {
 			time.Sleep(time.Millisecond)
 		}
 	}
-	scene.Stop()
+	eng.Stop()
 
 	return 0
 }
 
+// handleEvent handles events and tells if we need to quit (based on the event).
 func handleEvent(event sdl.Event) (quit bool) {
 	switch e := event.(type) {
 	case *sdl.KeyDownEvent:

@@ -1,78 +1,36 @@
 package engine
 
 import (
-	"sync"
-	"time"
-
 	"github.com/icza/balls/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-const (
-	// presentPeriod is the period of the scene presentation
-	presentPeriod = time.Millisecond * 20 // 50 FPS
-)
-
-// Scene is the world of the demo.
-// Contains the engine, controls the simulation and presents it on the screen.
-type Scene struct {
+// scene is used to present the world.
+type scene struct {
 	// r is the Renderer used to paint.
 	r *sdl.Renderer
 
-	// quit is used to signal termination
-	quit chan struct{}
-
-	// wg is a WaitGroup to wait Run to return
-	wg *sync.WaitGroup
-
 	// e is the engine
-	e *engine
+	e *Engine
 }
 
-// NewScene creates a new Scene.
-func NewScene(r *sdl.Renderer, w, h int) *Scene {
-	s := &Scene{
-		r:    r,
-		quit: make(chan struct{}),
-		wg:   &sync.WaitGroup{},
-		e:    newEngine(w, h),
+// newScene creates a new scene.
+func newScene(r *sdl.Renderer, e *Engine) *scene {
+	s := &scene{
+		r: r,
+		e: e,
 	}
-
-	// Add one here (and not in Run()) because if Stop() is called before
-	// Run() could start, Stop() would return immediately even though Run()
-	// might be started after that.
-	s.wg.Add(1)
 
 	return s
 }
 
-// Run runs the simulation.
-func (s *Scene) Run() {
-	defer s.wg.Done()
-
-	ticker := time.NewTicker(presentPeriod)
-	defer ticker.Stop()
-
-simLoop:
-	for {
-		select {
-		case now := <-ticker.C:
-			s.e.recalc(now)
-			sdl.Do(s.present)
-		case <-s.quit:
-			break simLoop
-		}
-	}
+// present paints the scene in the SDL2's main thread.
+func (s *scene) present() {
+	sdl.Do(s.presentInternal)
 }
 
-// Stop stops the simulation and waits for Run to return.
-func (s *Scene) Stop() {
-	close(s.quit)
-	s.wg.Wait()
-}
-
-// present paints the scene.
-func (s *Scene) present() {
+// presentInternal paints the scene.
+func (s *scene) presentInternal() {
 	r := s.r
 
 	r.SetDrawColor(0, 0, 0, 255)
