@@ -166,19 +166,55 @@ func (e *Engine) recalc(now time.Time) {
 
 // recalcInternal recalculates the world.
 func (e *Engine) recalcInternal(dt time.Duration) {
-	dtSec := float64(dt) / float64(time.Second)
-	for _, b := range e.balls {
+	dtSec := dt.Seconds()
+
+	for i, b := range e.balls {
 		oldX, oldY := real(b.pos), imag(b.pos)
 		b.recalc(dtSec)
 		x, y := real(b.pos), imag(b.pos)
+
+		collision := false
+
 		// Check if world boundaries are reached, and bounce back if so:
-		if x < b.r || x >= float64(e.w)-b.r {
+		if x < b.r-2 || x >= float64(e.w)-b.r+2 {
 			b.v = complex(-real(b.v), imag(b.v))
-			b.pos = complex(oldX, y)
+			collision = true
 		}
-		if y < b.r || y >= float64(e.h)-b.r {
+		if y < b.r-2 || y >= float64(e.h)-b.r+2 {
 			b.v = cmplx.Conj(b.v)
-			b.pos = complex(x, oldY)
+			collision = true
+		}
+
+		// Check collision with other balls:
+		x1, y1, x2, y2 := x-b.r, y-b.r, x+b.r, y+b.r
+		for j, b2 := range e.balls {
+			if i == j {
+				continue
+			}
+
+			// Fast check: enclosing rectangle collision:
+			b2x, b2y := real(b2.pos), imag(b2.pos)
+			if x2 < b2x-b2.r ||
+				x1 > b2x+b2.r ||
+				y2 < b2y-b2.r ||
+				y1 > b2y+b2.r {
+				continue // enclosing rectangles do not intersect
+			}
+
+			// Exact check:
+			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-4 {
+				collision = true
+				// Algo description: https://en.wikipedia.org/wiki/Elastic_collision
+				// New velocities:
+				v1 := (b.v*(b.m-b2.m) + 2*b2.m*b2.v) / (b.m + b2.m)
+				v2 := (b2.v*(b2.m-b.m) + 2*b.m*b.v) / (b.m + b2.m)
+
+				b.v, b2.v = v1, v2
+			}
+		}
+
+		if collision {
+			b.pos = complex(oldX, oldY)
 		}
 	}
 }
