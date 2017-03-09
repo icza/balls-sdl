@@ -186,16 +186,11 @@ func (e *Engine) spawnBall() {
 // Doubles it if up is true, else halves it.
 func (e *Engine) ChangeSpeed(up bool) {
 	e.Do(func() {
-		if up {
+		if up && e.speedExp < maxSpeedExp {
 			e.speedExp++
-		} else {
+		}
+		if !up && e.speedExp > minSpeedExp {
 			e.speedExp--
-		}
-		if e.speedExp < minSpeedExp {
-			e.speedExp = minSpeedExp
-		}
-		if e.speedExp > maxSpeedExp {
-			e.speedExp = maxSpeedExp
 		}
 	})
 }
