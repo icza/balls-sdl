@@ -29,6 +29,9 @@ var (
 
 	// lastFSSwitch holds the last FS switch timestamp (to limit the switching rate)
 	lastFSSwitch time.Time
+
+	// eng is the engine
+	eng *engine.Engine
 )
 
 // run runs the demo.
@@ -90,7 +93,7 @@ func run() (exitCode int) {
 		}
 	})
 
-	eng := engine.NewEngine(r, w, h)
+	eng = engine.NewEngine(r, w, h)
 	go eng.Run()
 
 	for {
@@ -128,6 +131,10 @@ func handleEvent(event sdl.Event) (quit bool) {
 				fullScreen = !fullScreen
 				lastFSSwitch = time.Now()
 			}
+		case sdl.K_UP:
+			eng.ChangeSpeed(true)
+		case sdl.K_DOWN:
+			eng.ChangeSpeed(false)
 		case sdl.K_x, sdl.K_q:
 			return true
 		}

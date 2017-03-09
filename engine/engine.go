@@ -10,16 +10,22 @@ import (
 
 const (
 	// physicsPeriod is the period of model recalculation
-	physicsPeriod = time.Millisecond * 10 // 100 / sec
+	physicsPeriod = time.Millisecond * 2 // 500 / sec
 
 	// presentPeriod is the period of the scene presentation
-	presentPeriod = time.Millisecond * 20 // 50 FPS
+	presentPeriod = time.Millisecond * 32 // ~31 FPS
 
 	// maxBalls is the max number of balls
 	maxBalls = 20
 
 	// ballSpawnPeriod is the ball spawning period
 	ballSpawnPeriod = time.Second * 2
+
+	// minSpeedExp is the min allowed speed exponent value for the simulation speed
+	minSpeedExp = -5
+
+	// maxSpeedExp is the max allowed speed exponent value for the simulation speed
+	maxSpeedExp = 2
 )
 
 // Engine is the simulation engine.
@@ -29,14 +35,14 @@ type Engine struct {
 	// w and h are the width and height of the world
 	w, h int
 
-	// scene is used to present the world
-	scene *scene
-
 	// quit is used to signal termination
 	quit chan struct{}
 
 	// wg is a WaitGroup to wait Run to return
 	wg *sync.WaitGroup
+
+	// taskCh is used to receive tasks to be executed in the Engine's goroutine
+	taskCh chan task
 
 	// lastCalc is the last calculation timestamp
 	lastCalc time.Time
@@ -46,6 +52,20 @@ type Engine struct {
 
 	// balls of the simulation
 	balls []*ball
+
+	// scene is used to present the world
+	scene *scene
+
+	// speedExp is the (relative) speed exponent of the simulation: 2^speedExp
+	// 0 being the normal (1x), 1 being 2x, 2 being 4x, -1 being 1/2 etc.
+	speedExp int
+}
+
+// task defines a type that wraps a task (function) and a channel where
+// completion can be signaled.
+type task struct {
+	f    func()
+	done chan<- struct{}
 }
 
 // NewEngine creates a new Engine.
@@ -55,6 +75,7 @@ func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 		h:        h,
 		quit:     make(chan struct{}),
 		wg:       &sync.WaitGroup{},
+		taskCh:   make(chan task),
 		lastCalc: time.Now(),
 	}
 	e.scene = newScene(r, e)
@@ -77,6 +98,9 @@ func (e *Engine) Run() {
 simLoop:
 	for {
 		select {
+		case t := <-e.taskCh:
+			t.f()
+			close(t.done)
 		case now := <-ticker.C:
 			e.recalc(now)
 			e.scene.present()
@@ -92,25 +116,46 @@ func (e *Engine) Stop() {
 	e.wg.Wait()
 }
 
+// Do executes f in the Engine's goroutine.
+// Returns after f returned (waits for f to complete).
+func (e *Engine) Do(f func()) {
+	done := make(chan struct{})
+	e.taskCh <- task{f: f, done: done}
+	<-done
+}
+
 // recalc recalculates the world.
 func (e *Engine) recalc(now time.Time) {
 	// dt might be "big", much bigger than physics period, in which case
 	// the balls might move huge distances. To avoid any "unexpected" states,
-	// do granular movement:
-	for t := e.lastCalc; t.Before(now); t = t.Add(physicsPeriod) {
-		e.recalcInternal(t)
-	}
-}
-
-// recalcInternal recalculates the world.
-func (e *Engine) recalcInternal(now time.Time) {
-	dt := now.Sub(e.lastCalc)
+	// do granular movement.
 
 	if len(e.balls) < maxBalls && now.Sub(e.lastSpawned) > ballSpawnPeriod {
 		e.spawnBall()
 		e.lastSpawned = now
 	}
 
+	dtMax := now.Sub(e.lastCalc)
+	for se := e.speedExp; se != 0; {
+		if se > 0 {
+			dtMax *= 2
+			se--
+		}
+		if se < 0 {
+			dtMax /= 2
+			se++
+		}
+	}
+
+	for dt := time.Duration(0); dt < dtMax; dt += physicsPeriod {
+		e.recalcInternal(physicsPeriod)
+	}
+
+	e.lastCalc = now
+}
+
+// recalcInternal recalculates the world.
+func (e *Engine) recalcInternal(dt time.Duration) {
 	dtSec := float64(dt) / float64(time.Second)
 	for _, b := range e.balls {
 		oldX, oldY := real(b.pos), imag(b.pos)
@@ -126,8 +171,6 @@ func (e *Engine) recalcInternal(now time.Time) {
 			b.pos = complex(x, oldY)
 		}
 	}
-
-	e.lastCalc = now
 }
 
 // spawnBall spawns a new ball.
@@ -137,4 +180,21 @@ func (e *Engine) spawnBall() {
 	// TODO check if no collision
 
 	e.balls = append(e.balls, b)
+}
+
+// ChangeSpeed changes the speed of the simulation by multiplying it with the specified value.
+func (e *Engine) ChangeSpeed(up bool) {
+	e.Do(func() {
+		if up {
+			e.speedExp++
+		} else {
+			e.speedExp--
+		}
+		if e.speedExp < minSpeedExp {
+			e.speedExp = minSpeedExp
+		}
+		if e.speedExp > maxSpeedExp {
+			e.speedExp = maxSpeedExp
+		}
+	})
 }

@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"fmt"
+
 	"github.com/icza/balls/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -48,7 +50,19 @@ func (s *scene) presentInternal() {
 
 	// Paint OSD:
 	r.SetDrawColor(200, 200, 100, 255)
-	gfx.DrawString(r, "X, Q: Exit   F: Fullscreen", 10, 20)
+	speed := 1.0
+	for se := s.e.speedExp; se != 0; {
+		if se > 0 {
+			speed *= 2
+			se--
+		}
+		if se < 0 {
+			speed /= 2
+			se++
+		}
+	}
+	text := fmt.Sprintf("Up/Down: Speed %.2f   F: Fullscreen   X, Q: Exit", speed)
+	gfx.DrawString(r, text, 10, 20)
 
 	r.Present()
 }
