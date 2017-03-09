@@ -126,6 +126,15 @@ func (e *Engine) Do(f func()) {
 
 // recalc recalculates the world.
 func (e *Engine) recalc(now time.Time) {
+	dtMax := now.Sub(e.lastCalc)
+
+	// Protection against "timeouts":
+	// If excessive time elapsed since last call, skip the "missing" time
+	// (typical causes include copmuter sleep and extreme system load).
+	if dtMax > presentPeriod*10 {
+		dtMax = presentPeriod * 10
+	}
+
 	// dt might be "big", much bigger than physics period, in which case
 	// the balls might move huge distances. To avoid any "unexpected" states,
 	// do granular movement.
@@ -135,7 +144,6 @@ func (e *Engine) recalc(now time.Time) {
 		e.lastSpawned = now
 	}
 
-	dtMax := now.Sub(e.lastCalc)
 	for se := e.speedExp; se != 0; {
 		if se > 0 {
 			dtMax *= 2
@@ -147,6 +155,8 @@ func (e *Engine) recalc(now time.Time) {
 		}
 	}
 
+	// We always pass physicsPeriod to recalcInternal(), which means
+	// we get the exact same result no matter the speed.
 	for dt := time.Duration(0); dt < dtMax; dt += physicsPeriod {
 		e.recalcInternal(physicsPeriod)
 	}
