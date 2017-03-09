@@ -182,7 +182,8 @@ func (e *Engine) spawnBall() {
 	e.balls = append(e.balls, b)
 }
 
-// ChangeSpeed changes the speed of the simulation by multiplying it with the specified value.
+// ChangeSpeed changes the speed of the simulation.
+// Doubles it if up is true, else halves it.
 func (e *Engine) ChangeSpeed(up bool) {
 	e.Do(func() {
 		if up {
