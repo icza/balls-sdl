@@ -43,7 +43,10 @@ type ball struct {
 // newBall creates a new ball.
 func newBall(w, h int) *ball {
 	b := &ball{
-		pos: complex(float64(w)*rand.Float64(), float64(h)*0.3),
+		pos: complex(
+			2*maxR+float64(w-maxR*4)*rand.Float64(),
+			float64(h)*0.3,
+		),
 		//pos: complex(float64(w)*0.5, float64(h)*0.3),
 		r: minR + rand.Float64()*(maxR-minR),
 		v: cmplx.Rect(rand.Float64()*initialMaxAbsV, rand.Float64()*math.Pi*2),

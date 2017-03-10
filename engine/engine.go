@@ -221,11 +221,32 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 
 // spawnBall spawns a new ball.
 func (e *Engine) spawnBall() {
-	b := newBall(e.w, e.h)
+	for i := 0; i < 100; i++ { // Retry 100 times if needed
+		b := newBall(e.w, e.h)
 
-	// TODO check if no collision
+		// Check collision with other balls:
+		x, y, R := real(b.pos), imag(b.pos), 2*b.r // 2*r: leave bigger space than needed
+		x1, y1, x2, y2 := x-R, y-R, x+R, y+R
 
-	e.balls = append(e.balls, b)
+		collides := false
+		for _, b2 := range e.balls {
+			// Fast check is enough for us: enclosing rectangle collision:
+			b2x, b2y := real(b2.pos), imag(b2.pos)
+			if x2 < b2x-b2.r ||
+				x1 > b2x+b2.r ||
+				y2 < b2y-b2.r ||
+				y1 > b2y+b2.r {
+				continue // enclosing rectangles do not intersect
+			}
+			collides = true
+			break
+		}
+
+		if !collides {
+			e.balls = append(e.balls, b)
+			break
+		}
+	}
 }
 
 // ChangeSpeed changes the speed of the simulation.
