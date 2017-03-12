@@ -206,8 +206,11 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 				collision = true
 				// Algo description: https://en.wikipedia.org/wiki/Elastic_collision
 				// New velocities:
-				v1 := (b.v*(b.m-b2.m) + 2*b2.m*b2.v) / (b.m + b2.m)
-				v2 := (b2.v*(b2.m-b.m) + 2*b.m*b.v) / (b.m + b2.m)
+				dpos := b.pos - b2.pos
+				common := 2 / (b.m + b2.m) / abssq(dpos)
+
+				v1 := b.v - common*b2.m*sprod(b.v-b2.v, dpos)*dpos
+				v2 := b2.v - common*b.m*sprod(b2.v-b.v, -dpos)*-dpos
 
 				b.v, b2.v = v1, v2
 			}
@@ -217,6 +220,17 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 			b.pos = complex(oldX, oldY)
 		}
 	}
+}
+
+// scalar production:
+func sprod(a, b complex128) complex128 {
+	return complex(real(a)*real(b)+imag(a)*imag(b), 0)
+}
+
+// abs then square:
+func abssq(a complex128) complex128 {
+	x := cmplx.Abs(a)
+	return complex(x*x, 0)
 }
 
 // spawnBall spawns a new ball.

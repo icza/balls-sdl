@@ -16,7 +16,7 @@ const (
 	initialMaxAbsV = 350
 
 	// minR is the minimum radius of the ball
-	minR = 10
+	minR = 15
 
 	// maxR is the maximum radius of the ball
 	maxR = 30
