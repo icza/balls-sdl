@@ -175,12 +175,14 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 
 		collision := false
 
+		const near = 3 // How near we let balls close boundaries and each other (3=touch)
+
 		// Check if world boundaries are reached, and bounce back if so:
-		if x < b.r-2 || x >= float64(e.w)-b.r+2 {
+		if x < b.r-near || x >= float64(e.w)-b.r+near {
 			b.v = complex(-real(b.v), imag(b.v))
 			collision = true
 		}
-		if y < b.r-2 || y >= float64(e.h)-b.r+2 {
+		if y < b.r-near || y >= float64(e.h)-b.r+near {
 			b.v = cmplx.Conj(b.v)
 			collision = true
 		}
@@ -202,7 +204,7 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 			}
 
 			// Exact check:
-			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-6 {
+			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-2*near {
 				collision = true
 				// Algo description: https://en.wikipedia.org/wiki/Elastic_collision
 				// New velocities:
@@ -273,5 +275,12 @@ func (e *Engine) ChangeSpeed(up bool) {
 		if !up && e.speedExp > minSpeedExp {
 			e.speedExp--
 		}
+	})
+}
+
+// Restart restarts the simulation: removes all balls.
+func (e *Engine) Restart() {
+	e.Do(func() {
+		e.balls = nil
 	})
 }

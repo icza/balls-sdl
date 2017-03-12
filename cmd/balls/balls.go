@@ -135,6 +135,8 @@ func handleEvent(event sdl.Event) (quit bool) {
 			eng.ChangeSpeed(true)
 		case sdl.K_DOWN:
 			eng.ChangeSpeed(false)
+		case sdl.K_r:
+			eng.Restart()
 		case sdl.K_x, sdl.K_q:
 			return true
 		}

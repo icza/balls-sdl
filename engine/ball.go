@@ -10,13 +10,13 @@ import (
 
 const (
 	// gravity is the gravitational constant (vector)
-	gravity = 0 + 800i
+	gravity = 0 + 600i
 
 	// initialMaxAbsV is the max of the absolute of the initial speed vector
-	initialMaxAbsV = 350
+	initialMaxAbsV = 300
 
 	// minR is the minimum radius of the ball
-	minR = 15
+	minR = 10
 
 	// maxR is the maximum radius of the ball
 	maxR = 30
@@ -45,7 +45,7 @@ func newBall(w, h int) *ball {
 	b := &ball{
 		pos: complex(
 			2*maxR+float64(w-maxR*4)*rand.Float64(),
-			float64(h)*0.3,
+			float64(h)*0.4,
 		),
 		//pos: complex(float64(w)*0.5, float64(h)*0.3),
 		r: minR + rand.Float64()*(maxR-minR),

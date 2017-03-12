@@ -61,7 +61,7 @@ func (s *scene) presentInternal() {
 			se++
 		}
 	}
-	text := fmt.Sprintf("Up/Down: Speed %.2f   F: Fullscreen   X, Q: Exit", speed)
+	text := fmt.Sprintf("Up/Down: Speed %.2f   F: Fullscreen   R: Restart   X, Q: Exit", speed)
 	gfx.DrawString(r, text, 10, 20)
 
 	r.Present()
