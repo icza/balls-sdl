@@ -202,7 +202,7 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 			}
 
 			// Exact check:
-			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-4 {
+			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-6 {
 				collision = true
 				// Algo description: https://en.wikipedia.org/wiki/Elastic_collision
 				// New velocities:
