@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -131,10 +132,11 @@ func handleEvent(event sdl.Event) (quit bool) {
 				fullScreen = !fullScreen
 				lastFSSwitch = time.Now()
 			}
-		case sdl.K_UP:
-			eng.ChangeSpeed(true)
-		case sdl.K_DOWN:
-			eng.ChangeSpeed(false)
+			fmt.Println(e.Keysym.Unicode)
+		case sdl.K_s:
+			eng.ChangeSpeed(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+		case sdl.K_m:
+			eng.ChangeMinMaxBallRatio(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
 		case sdl.K_r:
 			eng.Restart()
 		case sdl.K_x, sdl.K_q:

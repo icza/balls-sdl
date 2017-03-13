@@ -15,9 +15,6 @@ const (
 	// initialMaxAbsV is the max of the absolute of the initial speed vector
 	initialMaxAbsV = 300
 
-	// minR is the minimum radius of the ball
-	minR = 10
-
 	// maxR is the maximum radius of the ball
 	maxR = 30
 )
@@ -41,7 +38,9 @@ type ball struct {
 }
 
 // newBall creates a new ball.
-func newBall(w, h int) *ball {
+func newBall(w, h, minMaxBallRatio int) *ball {
+	minR := maxR * float64(minMaxBallRatio) / 100
+
 	b := &ball{
 		pos: complex(
 			2*maxR+float64(w-maxR*4)*rand.Float64(),

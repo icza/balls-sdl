@@ -25,7 +25,7 @@ const (
 	minSpeedExp = -5
 
 	// maxSpeedExp is the max allowed speed exponent value for the simulation speed
-	maxSpeedExp = 2
+	maxSpeedExp = 3
 )
 
 // Engine is the simulation engine.
@@ -59,6 +59,9 @@ type Engine struct {
 	// speedExp is the (relative) speed exponent of the simulation: 2^speedExp
 	// 0 being the normal (1x), 1 being 2x, 2 being 4x, -1 being 1/2 etc.
 	speedExp int
+
+	// minMaxBallRatio is the ratio of the possible min and max ball radius (%)
+	minMaxBallRatio int
 }
 
 // task defines a type that wraps a task (function) and a channel where
@@ -71,12 +74,13 @@ type task struct {
 // NewEngine creates a new Engine.
 func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 	e := &Engine{
-		w:        w,
-		h:        h,
-		quit:     make(chan struct{}),
-		wg:       &sync.WaitGroup{},
-		taskCh:   make(chan task),
-		lastCalc: time.Now(),
+		w:               w,
+		h:               h,
+		quit:            make(chan struct{}),
+		wg:              &sync.WaitGroup{},
+		taskCh:          make(chan task),
+		lastCalc:        time.Now(),
+		minMaxBallRatio: 60,
 	}
 	e.scene = newScene(r, e)
 
@@ -238,7 +242,7 @@ func abssq(a complex128) complex128 {
 // spawnBall spawns a new ball.
 func (e *Engine) spawnBall() {
 	for i := 0; i < 100; i++ { // Retry 100 times if needed
-		b := newBall(e.w, e.h)
+		b := newBall(e.w, e.h, e.minMaxBallRatio)
 
 		// Check collision with other balls:
 		x, y, R := real(b.pos), imag(b.pos), 2*b.r // 2*r: leave bigger space than needed
@@ -282,5 +286,18 @@ func (e *Engine) ChangeSpeed(up bool) {
 func (e *Engine) Restart() {
 	e.Do(func() {
 		e.balls = nil
+	})
+}
+
+// ChangeMinMaxBallRatio changes the min-max ball ratio.
+// Adds +- 10 %.
+func (e *Engine) ChangeMinMaxBallRatio(up bool) {
+	e.Do(func() {
+		if up && e.minMaxBallRatio < 100 {
+			e.minMaxBallRatio += 10
+		}
+		if !up && e.minMaxBallRatio > 10 {
+			e.minMaxBallRatio -= 10
+		}
 	})
 }
