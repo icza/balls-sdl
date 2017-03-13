@@ -135,6 +135,8 @@ func handleEvent(event sdl.Event) (quit bool) {
 			fmt.Println(e.Keysym.Unicode)
 		case sdl.K_s:
 			eng.ChangeSpeed(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+		case sdl.K_a:
+			eng.ChangeMaxBalls(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
 		case sdl.K_m:
 			eng.ChangeMinMaxBallRatio(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
 		case sdl.K_r:

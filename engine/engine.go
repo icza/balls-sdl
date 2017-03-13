@@ -15,11 +15,11 @@ const (
 	// presentPeriod is the period of the scene presentation
 	presentPeriod = time.Millisecond * 32 // ~31 FPS
 
-	// maxBalls is the max number of balls
-	maxBalls = 20
-
 	// ballSpawnPeriod is the ball spawning period
-	ballSpawnPeriod = time.Second * 2
+	ballSpawnPeriod = time.Second
+
+	// near defines how near we let balls close boundaries and each other (3=touch)
+	near = 3
 
 	// minSpeedExp is the min allowed speed exponent value for the simulation speed
 	minSpeedExp = -5
@@ -60,6 +60,9 @@ type Engine struct {
 	// 0 being the normal (1x), 1 being 2x, 2 being 4x, -1 being 1/2 etc.
 	speedExp int
 
+	// maxBalls is the max number of balls
+	maxBalls int
+
 	// minMaxBallRatio is the ratio of the possible min and max ball radius (%)
 	minMaxBallRatio int
 }
@@ -80,6 +83,7 @@ func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 		wg:              &sync.WaitGroup{},
 		taskCh:          make(chan task),
 		lastCalc:        time.Now(),
+		maxBalls:        20,
 		minMaxBallRatio: 60,
 	}
 	e.scene = newScene(r, e)
@@ -143,7 +147,10 @@ func (e *Engine) recalc(now time.Time) {
 	// the balls might move huge distances. To avoid any "unexpected" states,
 	// do granular movement.
 
-	if len(e.balls) < maxBalls && now.Sub(e.lastSpawned) > ballSpawnPeriod {
+	if len(e.balls) > e.maxBalls {
+		e.balls = e.balls[:e.maxBalls]
+	}
+	if len(e.balls) < e.maxBalls && now.Sub(e.lastSpawned) > ballSpawnPeriod {
 		e.spawnBall()
 		e.lastSpawned = now
 	}
@@ -178,8 +185,6 @@ func (e *Engine) recalcInternal(dt time.Duration) {
 		x, y := real(b.pos), imag(b.pos)
 
 		collision := false
-
-		const near = 3 // How near we let balls close boundaries and each other (3=touch)
 
 		// Check if world boundaries are reached, and bounce back if so:
 		if x < b.r-near || x >= float64(e.w)-b.r+near {
@@ -269,6 +274,13 @@ func (e *Engine) spawnBall() {
 	}
 }
 
+// Restart restarts the simulation: removes all balls.
+func (e *Engine) Restart() {
+	e.Do(func() {
+		e.balls = nil
+	})
+}
+
 // ChangeSpeed changes the speed of the simulation.
 // Doubles it if up is true, else halves it.
 func (e *Engine) ChangeSpeed(up bool) {
@@ -282,15 +294,8 @@ func (e *Engine) ChangeSpeed(up bool) {
 	})
 }
 
-// Restart restarts the simulation: removes all balls.
-func (e *Engine) Restart() {
-	e.Do(func() {
-		e.balls = nil
-	})
-}
-
 // ChangeMinMaxBallRatio changes the min-max ball ratio.
-// Adds +- 10 %.
+// Adds +/- 0.1.
 func (e *Engine) ChangeMinMaxBallRatio(up bool) {
 	e.Do(func() {
 		if up && e.minMaxBallRatio < 100 {
@@ -298,6 +303,19 @@ func (e *Engine) ChangeMinMaxBallRatio(up bool) {
 		}
 		if !up && e.minMaxBallRatio > 10 {
 			e.minMaxBallRatio -= 10
+		}
+	})
+}
+
+// ChangeMaxBalls changes the max number of balls.
+// Adds +/- 1.
+func (e *Engine) ChangeMaxBalls(up bool) {
+	e.Do(func() {
+		if up && e.maxBalls < 50 {
+			e.maxBalls++
+		}
+		if !up && e.maxBalls > 1 {
+			e.maxBalls--
 		}
 	})
 }

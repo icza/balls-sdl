@@ -61,8 +61,8 @@ func (s *scene) presentInternal() {
 			se++
 		}
 	}
-	text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f",
-		speed, float64(s.e.minMaxBallRatio)/100)
+	text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f   M(A/a)x balls: %2d",
+		speed, float64(s.e.minMaxBallRatio)/100, s.e.maxBalls)
 	gfx.DrawString(r, text, 10, 20)
 
 	r.Present()

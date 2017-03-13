@@ -43,7 +43,7 @@ func newBall(w, h, minMaxBallRatio int) *ball {
 
 	b := &ball{
 		pos: complex(
-			2*maxR+float64(w-maxR*4)*rand.Float64(),
+			2*maxR+float64(w-maxR*4-2*near)*rand.Float64(),
 			float64(h)*0.4,
 		),
 		//pos: complex(float64(w)*0.5, float64(h)*0.3),
