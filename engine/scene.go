@@ -51,16 +51,12 @@ func (s *scene) presentInternal() {
 	// Paint OSD:
 	r.SetDrawColor(200, 200, 100, 255)
 	speed := 1.0
-	for se := s.e.speedExp; se != 0; {
-		if se > 0 {
-			speed *= 2
-			se--
-		}
-		if se < 0 {
-			speed /= 2
-			se++
-		}
+	if exp := s.e.speedExp; exp >= 0 {
+		speed *= float64(int(1) << uint(exp))
+	} else {
+		speed /= float64(int(1) << uint(-exp))
 	}
+
 	text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f   M(A/a)x balls: %2d",
 		speed, float64(s.e.minMaxBallRatio)/100, s.e.maxBalls)
 	gfx.DrawString(r, text, 10, 20)

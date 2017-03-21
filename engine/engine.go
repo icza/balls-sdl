@@ -156,15 +156,10 @@ func (e *Engine) update(now time.Time) {
 		e.lastSpawned = now
 	}
 
-	for se := e.speedExp; se != 0; {
-		if se > 0 {
-			dtMax *= 2
-			se--
-		}
-		if se < 0 {
-			dtMax /= 2
-			se++
-		}
+	if exp := e.speedExp; exp >= 0 {
+		dtMax *= 1 << uint(exp)
+	} else {
+		dtMax /= 1 << uint(-exp)
 	}
 
 	// We always pass physicsPeriod to recalcInternal(), which means
@@ -215,17 +210,17 @@ func (e *Engine) updateUnit(dt time.Duration) {
 			}
 
 			// Exact check:
-			if cmplx.Abs(b.pos-b2.pos) < b.r+b2.r-2*near {
+			if b1 := b; cmplx.Abs(b1.pos-b2.pos) < b1.r+b2.r-2*near {
 				collision = true
 				// Algo description: https://en.wikipedia.org/wiki/Elastic_collision
 				// New velocities:
-				dpos := b.pos - b2.pos
-				common := 2 / (b.m + b2.m) / abssq(dpos)
+				dpos := b1.pos - b2.pos
+				common := 2 / (b1.m + b2.m) / abssq(dpos)
 
-				v1 := b.v - common*b2.m*sprod(b.v-b2.v, dpos)*dpos
-				v2 := b2.v - common*b.m*sprod(b2.v-b.v, -dpos)*-dpos
+				v1 := b1.v - common*b2.m*sprod(b1.v-b2.v, +dpos)*+dpos
+				v2 := b2.v - common*b1.m*sprod(b2.v-b1.v, -dpos)*-dpos
 
-				b.v, b2.v = v1, v2
+				b1.v, b2.v = v1, v2
 			}
 		}
 
