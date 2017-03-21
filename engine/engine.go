@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	// physicsPeriod is the period of model recalculation
+	// physicsPeriod is the period of model update
 	physicsPeriod = time.Millisecond * 2 // 500 / sec
 
 	// presentPeriod is the period of the scene presentation
@@ -44,8 +44,8 @@ type Engine struct {
 	// taskCh is used to receive tasks to be executed in the Engine's goroutine
 	taskCh chan task
 
-	// lastCalc is the last calculation timestamp
-	lastCalc time.Time
+	// lastUpdate is the last update timestamp
+	lastUpdate time.Time
 
 	// lastSpawned is the last ball spawning timestamp
 	lastSpawned time.Time
@@ -82,7 +82,7 @@ func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 		quit:            make(chan struct{}),
 		wg:              &sync.WaitGroup{},
 		taskCh:          make(chan task),
-		lastCalc:        time.Now(),
+		lastUpdate:      time.Now(),
 		maxBalls:        20,
 		minMaxBallRatio: 60,
 	}
@@ -110,7 +110,7 @@ simLoop:
 			t.f()
 			close(t.done)
 		case now := <-ticker.C:
-			e.recalc(now)
+			e.update(now)
 			e.scene.present()
 		case <-e.quit:
 			break simLoop
@@ -132,13 +132,14 @@ func (e *Engine) Do(f func()) {
 	<-done
 }
 
-// recalc recalculates the world.
-func (e *Engine) recalc(now time.Time) {
-	dtMax := now.Sub(e.lastCalc)
+// update updates (recalculates the world.
+// It does it incrementally until engine state reaches the now timestamp.
+func (e *Engine) update(now time.Time) {
+	dtMax := now.Sub(e.lastUpdate)
 
 	// Protection against "timeouts":
 	// If excessive time elapsed since last call, skip the "missing" time
-	// (typical causes include copmuter sleep and extreme system load).
+	// (typical causes include computer sleep and extreme system load).
 	if dtMax > presentPeriod*10 {
 		dtMax = presentPeriod * 10
 	}
@@ -169,14 +170,15 @@ func (e *Engine) recalc(now time.Time) {
 	// We always pass physicsPeriod to recalcInternal(), which means
 	// we get the exact same result no matter the speed.
 	for dt := time.Duration(0); dt < dtMax; dt += physicsPeriod {
-		e.recalcInternal(physicsPeriod)
+		e.updateUnit(physicsPeriod)
 	}
 
-	e.lastCalc = now
+	e.lastUpdate = now
 }
 
-// recalcInternal recalculates the world.
-func (e *Engine) recalcInternal(dt time.Duration) {
+// updateUnit recalculates the world for a time unit (physicsPeriod),
+// in one step.
+func (e *Engine) updateUnit(dt time.Duration) {
 	dtSec := dt.Seconds()
 
 	for i, b := range e.balls {
