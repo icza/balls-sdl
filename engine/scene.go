@@ -76,25 +76,33 @@ func (s *scene) paintOSD() {
 	}{
 		{"F", "fullscreen", nil},
 		{"R", "restart", nil},
-		{"O", "Toggle OSD (help text)", nil},
-		{"Q/X", "Quit", nil},
+		{"Q/X", "quit", nil},
+		{"O", "OSD (on-screen display)", nil},
 		{"S/s", "speed: %.2f", speed},
 		{"A/a", "max # of balls: %2d", s.e.maxBalls},
-		{"M/m", "min-max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
+		{"M/m", "min/max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
+	}
+
+	col2x := func(col int) int { return col*210 + 10 }
+	row2y := func(row int) int { return row*15 + 15 }
+
+	// How many text columns fits on the screen?
+	numCol := 0
+	for col2x(numCol+1) < s.e.w {
+		numCol++
 	}
 
 	row, col := 0, 0
-	xf := func(col int) int { return col*210 + 10 }
 	for _, it := range items {
 		params := []interface{}{"[" + it.keys + "]"}
 		if it.param != nil {
 			params = append(params, it.param)
 		}
 		text := fmt.Sprintf("%-5s "+it.format, params...)
-		gfx.DrawString(r, text, xf(col), row*15+15)
+		gfx.DrawString(r, text, col2x(col), row2y(row))
 
 		col++
-		if xf(col+1) > s.e.w {
+		if col >= numCol {
 			row, col = row+1, 0
 		}
 	}
