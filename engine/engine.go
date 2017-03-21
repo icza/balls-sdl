@@ -65,6 +65,9 @@ type Engine struct {
 
 	// minMaxBallRatio is the ratio of the possible min and max ball radius (%)
 	minMaxBallRatio int
+
+	// osd tells if OSD is visible
+	osd bool
 }
 
 // task defines a type that wraps a task (function) and a channel where
@@ -85,6 +88,7 @@ func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 		lastUpdate:      time.Now(),
 		maxBalls:        20,
 		minMaxBallRatio: 60,
+		osd:             true,
 	}
 	e.scene = newScene(r, e)
 
@@ -314,5 +318,12 @@ func (e *Engine) ChangeMaxBalls(up bool) {
 		if !up && e.maxBalls > 1 {
 			e.maxBalls--
 		}
+	})
+}
+
+// ToggleOSD toggles the OSD.
+func (e *Engine) ToggleOSD() {
+	e.Do(func() {
+		e.osd = !e.osd
 	})
 }

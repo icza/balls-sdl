@@ -55,6 +55,10 @@ func (s *scene) presentInternal() {
 
 // paintOSD paints on-screen texts.
 func (s *scene) paintOSD() {
+	if !s.e.osd {
+		return
+	}
+
 	r := s.r
 
 	r.SetDrawColor(200, 200, 100, 255)
@@ -70,10 +74,11 @@ func (s *scene) paintOSD() {
 		format string
 		param  interface{}
 	}{
-		{"S/s", "speed: %.2f", speed},
 		{"F", "fullscreen", nil},
 		{"R", "restart", nil},
+		{"O", "Toggle OSD (help text)", nil},
 		{"Q/X", "Quit", nil},
+		{"S/s", "speed: %.2f", speed},
 		{"A/a", "max # of balls: %2d", s.e.maxBalls},
 		{"M/m", "min-max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
 	}
@@ -93,10 +98,6 @@ func (s *scene) paintOSD() {
 			row, col = row+1, 0
 		}
 	}
-
-	// text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f   M(A/a)x balls: %2d",
-	// 	speed, float64(s.e.minMaxBallRatio)/100, s.e.maxBalls)
-	// gfx.DrawString(r, text, 10, 15)
 }
 
 // paintBall paints the picture of a ball, a filled circle with 3D effects.
