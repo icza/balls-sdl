@@ -48,7 +48,15 @@ func (s *scene) presentInternal() {
 		paintBall(r, b)
 	}
 
-	// Paint OSD:
+	s.paintOSD()
+
+	r.Present()
+}
+
+// paintOSD paints on-screen texts.
+func (s *scene) paintOSD() {
+	r := s.r
+
 	r.SetDrawColor(200, 200, 100, 255)
 	speed := 1.0
 	if exp := s.e.speedExp; exp >= 0 {
@@ -57,11 +65,38 @@ func (s *scene) presentInternal() {
 		speed /= float64(int(1) << uint(-exp))
 	}
 
-	text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f   M(A/a)x balls: %2d",
-		speed, float64(s.e.minMaxBallRatio)/100, s.e.maxBalls)
-	gfx.DrawString(r, text, 10, 20)
+	items := []struct {
+		keys   string
+		format string
+		param  interface{}
+	}{
+		{"S/s", "speed: %.2f", speed},
+		{"F", "fullscreen", nil},
+		{"R", "restart", nil},
+		{"Q/X", "Quit", nil},
+		{"A/a", "max # of balls: %2d", s.e.maxBalls},
+		{"M/m", "min-max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
+	}
 
-	r.Present()
+	row, col := 0, 0
+	xf := func(col int) int { return col*210 + 10 }
+	for _, it := range items {
+		params := []interface{}{"[" + it.keys + "]"}
+		if it.param != nil {
+			params = append(params, it.param)
+		}
+		text := fmt.Sprintf("%-5s "+it.format, params...)
+		gfx.DrawString(r, text, xf(col), row*15+15)
+
+		col++
+		if xf(col+1) > s.e.w {
+			row, col = row+1, 0
+		}
+	}
+
+	// text := fmt.Sprintf("(S/s)peed %.2f   (F)ullscreen   (R)estart   (Q)uit, E(x)it   (M/m)in-Max ball ratio: %.1f   M(A/a)x balls: %2d",
+	// 	speed, float64(s.e.minMaxBallRatio)/100, s.e.maxBalls)
+	// gfx.DrawString(r, text, 10, 15)
 }
 
 // paintBall paints the picture of a ball, a filled circle with 3D effects.
