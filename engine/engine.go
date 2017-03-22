@@ -68,6 +68,9 @@ type Engine struct {
 
 	// osd tells if OSD is visible
 	osd bool
+
+	// gravity is the gravity vector
+	gravity complex128
 }
 
 // task defines a type that wraps a task (function) and a channel where
@@ -86,9 +89,10 @@ func NewEngine(r *sdl.Renderer, w, h int) *Engine {
 		wg:              &sync.WaitGroup{},
 		taskCh:          make(chan task),
 		lastUpdate:      time.Now(),
-		maxBalls:        20,
+		maxBalls:        15,
 		minMaxBallRatio: 60,
 		osd:             true,
+		gravity:         0 + 600i,
 	}
 	e.scene = newScene(r, e)
 
@@ -136,7 +140,7 @@ func (e *Engine) Do(f func()) {
 	<-done
 }
 
-// update updates (recalculates the world.
+// update updates (recalculates) the world.
 // It does it incrementally until engine state reaches the now timestamp.
 func (e *Engine) update(now time.Time) {
 	dtMax := now.Sub(e.lastUpdate)
@@ -182,7 +186,7 @@ func (e *Engine) updateUnit(dt time.Duration) {
 
 	for i, b := range e.balls {
 		oldX, oldY := real(b.pos), imag(b.pos)
-		b.recalc(dtSec)
+		b.update(dtSec)
 		x, y := real(b.pos), imag(b.pos)
 
 		collision := false
@@ -248,7 +252,7 @@ func abssq(a complex128) complex128 {
 // spawnBall spawns a new ball.
 func (e *Engine) spawnBall() {
 	for i := 0; i < 100; i++ { // Retry 100 times if needed
-		b := newBall(e.w, e.h, e.minMaxBallRatio)
+		b := newBall(e)
 
 		// Check collision with other balls:
 		x, y, R := real(b.pos), imag(b.pos), 2*b.r // 2*r: leave bigger space than needed

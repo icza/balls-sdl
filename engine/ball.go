@@ -9,9 +9,6 @@ import (
 )
 
 const (
-	// gravity is the gravitational constant (vector)
-	gravity = 0 + 600i
-
 	// initialMaxAbsV is the max of the absolute of the initial speed vector
 	initialMaxAbsV = 300
 
@@ -21,6 +18,9 @@ const (
 
 // ball represents a ball.
 type ball struct {
+	// e is the engine
+	e *Engine
+
 	// pos is the position (vector) of the ball
 	pos complex128
 
@@ -38,13 +38,14 @@ type ball struct {
 }
 
 // newBall creates a new ball.
-func newBall(w, h, minMaxBallRatio int) *ball {
-	minR := maxR * float64(minMaxBallRatio) / 100
+func newBall(e *Engine) *ball {
+	minR := maxR * float64(e.minMaxBallRatio) / 100
 
 	b := &ball{
+		e: e,
 		pos: complex(
-			2*maxR+float64(w-maxR*4-2*near)*rand.Float64(),
-			float64(h)*0.4,
+			2*maxR+float64(e.w-maxR*4-2*near)*rand.Float64(),
+			float64(e.h)*0.4,
 		),
 		//pos: complex(float64(w)*0.5, float64(h)*0.3),
 		r: minR + rand.Float64()*(maxR-minR),
@@ -63,12 +64,13 @@ func newBall(w, h, minMaxBallRatio int) *ball {
 	return b
 }
 
-// recalc recalculates the position and velocity of the ball based on the delta time.
-func (b *ball) recalc(dtSec float64) {
+// update updates (recalculates) the position and velocity of the ball
+// based on the given delta time.
+func (b *ball) update(dtSec float64) {
 	f := complex(dtSec, 0)
 
 	// simulate gravity:
-	b.v += gravity * f
+	b.v += b.e.gravity * f
 
 	// Step
 	b.pos += b.v * f

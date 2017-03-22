@@ -45,10 +45,12 @@ func (s *scene) presentInternal() {
 	// Paint balls:
 	r.SetDrawColor(200, 80, 0, 255)
 	for _, b := range s.e.balls {
-		paintBall(r, b)
+		s.paintBall(b)
 	}
 
 	s.paintOSD()
+
+	s.paintGravity()
 
 	r.Present()
 }
@@ -109,9 +111,10 @@ func (s *scene) paintOSD() {
 }
 
 // paintBall paints the picture of a ball, a filled circle with 3D effects.
-func paintBall(r *sdl.Renderer, b *ball) {
+func (s *scene) paintBall(b *ball) {
 	// If performance becomes an issue, predraw on a texture,
 	// cache it and just present the texture.
+	r := s.r
 
 	x, y := int(real(b.pos)), int(imag(b.pos))
 
@@ -131,4 +134,28 @@ func paintBall(r *sdl.Renderer, b *ball) {
 
 	r.SetDrawColor(255, 255, 255, b.c.A)
 	r.DrawPoint(x, y)
+}
+
+// paintGravity paints a gravity vector.
+func (s *scene) paintGravity() {
+	const size = 50
+	g := s.e.gravity
+
+	x1, y1 := s.e.w-size-1, s.e.h-size-1
+	x2, y2 := x1+int(real(g/20)), y1+int(imag(g/20))
+
+	s.r.SetDrawColor(50, 150, 255, 255)
+	s.r.DrawLine(x1, y1, x2, y2)
+
+	// Bottom of the arrow:
+	v := g / 20 * 0.1i
+	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
+	v = g / 20 * -0.1i
+	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
+
+	// Head of the arrow:
+	v = g / 20 * (-0.15 + 0.15i)
+	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
+	v = g / 20 * (-0.15 - 0.15i)
+	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
 }
