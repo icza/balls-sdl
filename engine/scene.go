@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"math"
 	"math/cmplx"
 
 	"github.com/icza/balls/gfx"
@@ -72,6 +73,9 @@ func (s *scene) paintOSD() {
 		speed /= float64(int(1) << uint(-exp))
 	}
 
+	phase := cmplx.Phase(s.e.gravity) + math.Pi*2 // Make sure it's positive
+	degree := (720 - int(phase/math.Pi*180+0.5)) % 360
+
 	items := []struct {
 		keys   string
 		format string
@@ -85,6 +89,7 @@ func (s *scene) paintOSD() {
 		{"A/a", "max # of balls: %2d", s.e.maxBalls},
 		{"M/m", "min/max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
 		{"G/g", "abs gravity: %.2f", cmplx.Abs(s.e.gravity) / maxAbsGravity},
+		{"T/t", "rotate gravity: %3d deg", degree},
 	}
 
 	col2x := func(col int) int { return col*210 + 10 }
@@ -140,24 +145,24 @@ func (s *scene) paintBall(b *ball) {
 
 // paintGravity paints a gravity vector.
 func (s *scene) paintGravity() {
-	const size = 50
-	g := s.e.gravity
+	const size = 70 // Pixel size of max gravity
+	g := s.e.gravity * complex(float64(size)/maxAbsGravity, 0)
 
-	x1, y1 := s.e.w-size-1, s.e.h-size-1
-	x2, y2 := x1+int(real(g/20)), y1+int(imag(g/20))
+	x1, y1 := s.e.w-size-2, s.e.h-size-2
+	x2, y2 := x1+int(real(g)), y1+int(imag(g))
 
 	s.r.SetDrawColor(50, 150, 255, 255)
 	s.r.DrawLine(x1, y1, x2, y2)
 
 	// Bottom of the arrow:
-	v := g / 20 * 0.1i
+	v := g * 0.15i
 	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
-	v = g / 20 * -0.1i
+	v = g * -0.15i
 	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
 
 	// Head of the arrow:
-	v = g / 20 * (-0.15 + 0.15i)
+	v = g * (-0.18 + 0.18i)
 	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
-	v = g / 20 * (-0.15 - 0.15i)
+	v = g * (-0.18 - 0.18i)
 	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
 }

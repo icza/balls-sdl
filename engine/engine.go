@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"math"
 	"math/cmplx"
 	"sync"
 	"time"
@@ -340,17 +341,33 @@ func (e *Engine) ToggleOSD() {
 func (e *Engine) ChangeGravityAbs(up bool) {
 	e.Do(func() {
 		// convert to int so we always see "nice" results
-		oldAbs := int(cmplx.Abs(e.gravity))
-		abs := oldAbs
+		oldR := int(cmplx.Abs(e.gravity))
+		r := oldR
 		if up {
-			if abs += 100; abs > maxAbsGravity {
-				abs = maxAbsGravity
+			if r += 100; r > maxAbsGravity {
+				r = maxAbsGravity
 			}
 		} else {
-			if abs -= 100; abs < 2 { // Don't let below 1 else we lose direction info
-				abs = 1
+			if r -= 100; r < 2 { // Don't let below 1 else we lose direction info
+				r = 1
 			}
 		}
-		e.gravity *= complex(float64(abs)/float64(oldAbs), 0)
+		e.gravity *= complex(float64(r)/float64(oldR), 0)
+	})
+}
+
+// RotateGravity rotates the gravity vector.
+// Rotates +/- 10 degrees.
+func (e *Engine) RotateGravity(counterClockwise bool) {
+	e.Do(func() {
+		// convert to int so we always see "nice" results
+		r, theta := cmplx.Polar(e.gravity)
+		degree := int((theta+math.Pi*2)/math.Pi*180 + 0.5)
+		if counterClockwise {
+			degree += 10
+		} else {
+			degree -= 10
+		}
+		e.gravity = cmplx.Rect(r, float64(degree)/180*math.Pi)
 	})
 }
