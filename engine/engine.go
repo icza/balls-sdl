@@ -26,6 +26,9 @@ const (
 
 	// maxSpeedExp is the max allowed speed exponent value for the simulation speed
 	maxSpeedExp = 3
+
+	// maxAbsGravity is the max absolute value of the gravity
+	maxAbsGravity = 2000
 )
 
 // Engine is the simulation engine.
@@ -329,5 +332,25 @@ func (e *Engine) ChangeMaxBalls(up bool) {
 func (e *Engine) ToggleOSD() {
 	e.Do(func() {
 		e.osd = !e.osd
+	})
+}
+
+// ChangeGravityAbs changes the absolute value of the gravity.
+// Adds +/- 100.
+func (e *Engine) ChangeGravityAbs(up bool) {
+	e.Do(func() {
+		// convert to int so we always see "nice" results
+		oldAbs := int(cmplx.Abs(e.gravity))
+		abs := oldAbs
+		if up {
+			if abs += 100; abs > maxAbsGravity {
+				abs = maxAbsGravity
+			}
+		} else {
+			if abs -= 100; abs < 2 { // Don't let below 1 else we lose direction info
+				abs = 1
+			}
+		}
+		e.gravity *= complex(float64(abs)/float64(oldAbs), 0)
 	})
 }

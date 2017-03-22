@@ -2,6 +2,7 @@ package engine
 
 import (
 	"fmt"
+	"math/cmplx"
 
 	"github.com/icza/balls/gfx"
 	"github.com/veandco/go-sdl2/sdl"
@@ -83,6 +84,7 @@ func (s *scene) paintOSD() {
 		{"S/s", "speed: %.2f", speed},
 		{"A/a", "max # of balls: %2d", s.e.maxBalls},
 		{"M/m", "min/max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
+		{"G/g", "abs gravity: %.2f", cmplx.Abs(s.e.gravity) / maxAbsGravity},
 	}
 
 	col2x := func(col int) int { return col*210 + 10 }
