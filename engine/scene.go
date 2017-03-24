@@ -87,9 +87,9 @@ func (s *scene) paintOSD() {
 		{"O", "OSD (on-screen display)", nil},
 		{"S/s", "speed: %.2f", speed},
 		{"A/a", "max # of balls: %2d", s.e.maxBalls},
-		{"M/m", "min/max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
 		{"G/g", "abs gravity: %.2f", cmplx.Abs(s.e.gravity) / maxAbsGravity},
 		{"T/t", "rotate gravity: %3d deg", degree},
+		{"M/m", "min/max ball ratio: %.1f", float64(s.e.minMaxBallRatio) / 100},
 	}
 
 	col2x := func(col int) int { return col*210 + 10 }

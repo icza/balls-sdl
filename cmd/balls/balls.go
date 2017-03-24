@@ -13,10 +13,15 @@ import (
 )
 
 const (
-	title = "Bouncing Balls"
+	version  = "v1.0.0"
+	name     = "Bouncing Balls"
+	homePage = "https://github.com/icza/balls"
+	title    = name + " " + version
 )
 
 func main() {
+	fmt.Println(title)
+	fmt.Println("Home page:", homePage)
 	rand.Seed(time.Now().UnixNano())
 	os.Exit(run())
 }
@@ -132,7 +137,6 @@ func handleEvent(event sdl.Event) (quit bool) {
 				fullScreen = !fullScreen
 				lastFSSwitch = time.Now()
 			}
-			fmt.Println(e.Keysym.Unicode)
 		case sdl.K_s:
 			eng.ChangeSpeed(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
 		case sdl.K_a:
@@ -152,10 +156,6 @@ func handleEvent(event sdl.Event) (quit bool) {
 		}
 	case *sdl.QuitEvent:
 		return true
-	// Ignored events:
-	case *sdl.MouseMotionEvent:
-	default:
-		log.Printf("event: %T", e)
 	}
 
 	return false
