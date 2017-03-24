@@ -9,4 +9,4 @@ for graphics and events through the [go-sdl2](https://github.com/veandco/go-sdl2
 
 Screenshot:
 
-[[https://github.com/icza/balls/blob/master/screenshots/balls-v1.0.0.png|alt=Bouncing Balls v1.0.0 screenshot]]
+![Bouncing Balls v1.0.0 screenshot](screenshots/balls-v1.0.0.png)
