@@ -5,15 +5,4 @@ go:
   - master
 
 before_install:
-  - pushd .
-  - cd ~
-  - mkdir sdl2install
-  - export SDL2DIR="`pwd`/sdl2install"
-  - wget https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
-  - tar xf SDL2-2.0.5.tar.gz
-  - cd SDL2-2.0.5
-  - ./configure --prefix=$SDL2DIR
-  - make
-  - make install
-  - export PKG_CONFIG_PATH=`pwd`
-  - popd
+  - sudo apt install libsdl2{,-mixer,-image,-ttf,-gfx}-dev
