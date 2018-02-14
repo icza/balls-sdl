@@ -43,8 +43,7 @@ type rendererImage struct {
 }
 
 func newRendererImage(r *sdl.Renderer) draw.Image {
-	b := new(sdl.Rect)
-	r.GetViewport(b)
+	b := r.GetViewport()
 
 	return &rendererImage{
 		r:      r,
@@ -67,5 +66,5 @@ func (ri *rendererImage) At(x, y int) color.Color {
 func (ri *rendererImage) Set(x, y int, c color.Color) {
 	c2 := color.NRGBAModel.Convert(c).(color.NRGBA)
 	ri.r.SetDrawColor(c2.R, c2.G, c2.B, c2.A)
-	ri.r.DrawPoint(x, y)
+	ri.r.DrawPoint(int32(x), int32(y))
 }

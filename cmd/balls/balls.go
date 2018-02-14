@@ -23,7 +23,12 @@ func main() {
 	fmt.Println(title)
 	fmt.Println("Home page:", homePage)
 	rand.Seed(time.Now().UnixNano())
-	os.Exit(run())
+
+	var exitCode int
+	sdl.Main(func() {
+		exitCode = run()
+	})
+	os.Exit(exitCode)
 }
 
 var (
@@ -64,7 +69,7 @@ func run() (exitCode int) {
 		return fail("get display bounds", 2)
 	}
 	// Start with a half-size window
-	w, h := int(bounds.W)/2, int(bounds.H)/2
+	w, h := int32(bounds.W)/2, int32(bounds.H)/2
 
 	sdl.Do(func() {
 		win, err = sdl.CreateWindow(title, sdl.WINDOWPOS_CENTERED, sdl.WINDOWPOS_CENTERED, w, h, sdl.WINDOW_SHOWN)
@@ -72,7 +77,7 @@ func run() (exitCode int) {
 	if err != nil {
 		return fail("create window", 3)
 	}
-	defer sdl.Do(win.Destroy)
+	defer win.Destroy()
 
 	var r *sdl.Renderer
 	sdl.Do(func() {
@@ -81,7 +86,7 @@ func run() (exitCode int) {
 	if err != nil {
 		return fail("create renderer", 4)
 	}
-	defer sdl.Do(r.Destroy)
+	defer r.Destroy()
 
 	sdl.Do(func() {
 		// set logical size, so if window gets resized (full screen),
@@ -123,36 +128,38 @@ func run() (exitCode int) {
 // handleEvent handles events and tells if we need to quit (based on the event).
 func handleEvent(event sdl.Event) (quit bool) {
 	switch e := event.(type) {
-	case *sdl.KeyDownEvent:
-		switch e.Keysym.Sym {
-		case sdl.K_f:
-			if time.Since(lastFSSwitch) > time.Millisecond*500 {
-				flags := uint32(0)
-				if !fullScreen {
-					flags = sdl.WINDOW_FULLSCREEN_DESKTOP
+	case *sdl.KeyboardEvent:
+		if e.Type == sdl.KEYDOWN {
+			switch e.Keysym.Sym {
+			case sdl.K_f:
+				if time.Since(lastFSSwitch) > time.Millisecond*500 {
+					flags := uint32(0)
+					if !fullScreen {
+						flags = sdl.WINDOW_FULLSCREEN_DESKTOP
+					}
+					sdl.Do(func() {
+						win.SetFullscreen(flags)
+					})
+					fullScreen = !fullScreen
+					lastFSSwitch = time.Now()
 				}
-				sdl.Do(func() {
-					win.SetFullscreen(flags)
-				})
-				fullScreen = !fullScreen
-				lastFSSwitch = time.Now()
+			case sdl.K_s:
+				eng.ChangeSpeed(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+			case sdl.K_a:
+				eng.ChangeMaxBalls(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+			case sdl.K_m:
+				eng.ChangeMinMaxBallRatio(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+			case sdl.K_r:
+				eng.Restart()
+			case sdl.K_o:
+				eng.ToggleOSD()
+			case sdl.K_g:
+				eng.ChangeGravityAbs(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+			case sdl.K_t:
+				eng.RotateGravity(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
+			case sdl.K_x, sdl.K_q:
+				return true
 			}
-		case sdl.K_s:
-			eng.ChangeSpeed(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
-		case sdl.K_a:
-			eng.ChangeMaxBalls(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
-		case sdl.K_m:
-			eng.ChangeMinMaxBallRatio(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
-		case sdl.K_r:
-			eng.Restart()
-		case sdl.K_o:
-			eng.ToggleOSD()
-		case sdl.K_g:
-			eng.ChangeGravityAbs(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
-		case sdl.K_t:
-			eng.RotateGravity(e.Keysym.Mod&sdl.KMOD_SHIFT != 0)
-		case sdl.K_x, sdl.K_q:
-			return true
 		}
 	case *sdl.QuitEvent:
 		return true

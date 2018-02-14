@@ -37,7 +37,7 @@ const (
 // (via the scene).
 type Engine struct {
 	// w and h are the width and height of the world
-	w, h int
+	w, h int32
 
 	// quit is used to signal termination
 	quit chan struct{}
@@ -85,7 +85,7 @@ type task struct {
 }
 
 // NewEngine creates a new Engine.
-func NewEngine(r *sdl.Renderer, w, h int) *Engine {
+func NewEngine(r *sdl.Renderer, w, h int32) *Engine {
 	e := &Engine{
 		w:               w,
 		h:               h,

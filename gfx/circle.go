@@ -10,8 +10,8 @@ package gfx
 import "github.com/veandco/go-sdl2/sdl"
 
 // FillCircle draws a filled circle.
-func FillCircle(r *sdl.Renderer, x0, y0, rad int) {
-	for x, y, err := rad, 0, 0; x > 0; {
+func FillCircle(r *sdl.Renderer, x0, y0, rad int32) {
+	for x, y, err := rad, int32(0), int32(0); x > 0; {
 		r.DrawLine(x0-x, y0-y, x0+x, y0-y)
 		r.DrawLine(x0-x, y0+y, x0+x, y0+y)
 

@@ -97,7 +97,7 @@ func (s *scene) paintOSD() {
 
 	// How many text columns fits on the screen?
 	numCol := 0
-	for col2x(numCol+1) < s.e.w {
+	for col2x(numCol+1) < int(s.e.w) {
 		numCol++
 	}
 
@@ -123,7 +123,7 @@ func (s *scene) paintBall(b *ball) {
 	// cache it and just present the texture.
 	r := s.r
 
-	x, y := int(real(b.pos)), int(imag(b.pos))
+	x, y := int32(real(b.pos)), int32(imag(b.pos))
 
 	// Fill circles going from outside
 	gran := 10
@@ -136,7 +136,7 @@ func (s *scene) paintBall(b *ball) {
 		}
 
 		r.SetDrawColor(col(b.c.R), col(b.c.G), col(b.c.B), b.c.A)
-		gfx.FillCircle(r, x, y, int(b.r*f))
+		gfx.FillCircle(r, x, y, int32(b.r*f))
 	}
 
 	r.SetDrawColor(255, 255, 255, b.c.A)
@@ -148,21 +148,21 @@ func (s *scene) paintGravity() {
 	const size = 70 // Pixel size of max gravity
 	g := s.e.gravity * complex(float64(size)/maxAbsGravity, 0)
 
-	x1, y1 := s.e.w-size-2, s.e.h-size-2
-	x2, y2 := x1+int(real(g)), y1+int(imag(g))
+	x1, y1 := int32(s.e.w-size-2), int32(s.e.h-size-2)
+	x2, y2 := x1+int32(real(g)), y1+int32(imag(g))
 
 	s.r.SetDrawColor(50, 150, 255, 255)
 	s.r.DrawLine(x1, y1, x2, y2)
 
 	// Bottom of the arrow:
 	v := g * 0.15i
-	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
+	s.r.DrawLine(x1, y1, x1+int32(real(v)), y1+int32(imag(v)))
 	v = g * -0.15i
-	s.r.DrawLine(x1, y1, x1+int(real(v)), y1+int(imag(v)))
+	s.r.DrawLine(x1, y1, x1+int32(real(v)), y1+int32(imag(v)))
 
 	// Head of the arrow:
 	v = g * (-0.18 + 0.18i)
-	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
+	s.r.DrawLine(x2, y2, x2+int32(real(v)), y2+int32(imag(v)))
 	v = g * (-0.18 - 0.18i)
-	s.r.DrawLine(x2, y2, x2+int(real(v)), y2+int(imag(v)))
+	s.r.DrawLine(x2, y2, x2+int32(real(v)), y2+int32(imag(v)))
 }
