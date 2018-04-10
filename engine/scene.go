@@ -5,7 +5,7 @@ import (
 	"math"
 	"math/cmplx"
 
-	"github.com/icza/balls/gfx"
+	"github.com/icza/balls-sdl/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 )
 

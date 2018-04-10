@@ -8,14 +8,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/icza/balls/engine"
+	"github.com/icza/balls-sdl/engine"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
 	version  = "v1.0.0"
-	name     = "Bouncing Balls"
-	homePage = "https://github.com/icza/balls"
+	name     = "Bouncing Balls SDL"
+	homePage = "https://github.com/icza/balls-sdl"
 	title    = name + " " + version
 )
 
