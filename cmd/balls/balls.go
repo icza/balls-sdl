@@ -61,9 +61,9 @@ func run() (exitCode int) {
 	}
 	defer sdl.Do(sdl.Quit)
 
-	bounds := new(sdl.Rect)
+	var bounds sdl.Rect
 	sdl.Do(func() {
-		err = sdl.GetDisplayBounds(0, bounds)
+		bounds, err = sdl.GetDisplayBounds(0)
 	})
 	if err != nil {
 		return fail("get display bounds", 2)
