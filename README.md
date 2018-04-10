@@ -12,4 +12,4 @@ You can find a rewrite of this using [go.wde](https://github.com/skelterjohn/go.
 
 Screenshot:
 
-![Bouncing Balls v1.0.0 screenshot](screenshots/balls-v1.0.0.png)
+![Bouncing Balls SDL v1.0.0 screenshot](screenshots/balls-sdl-v1.0.0.png)
