@@ -7,7 +7,7 @@
 Bouncing balls demo written in Go, using [SDL2](https://www.libsdl.org/)
 for graphics and events through the [go-sdl2](https://github.com/veandco/go-sdl2) Go binding.
 
-You can find a variant of this using [Ebiten](github.com/hajimehoshi/ebiten) for graphics and events here:
+You can find a variant of this using [Ebiten](https://github.com/hajimehoshi/ebiten) for graphics and events here:
 [github.com/icza/balls-ebiten](https://github.com/icza/balls-ebiten).
 
 Another variant using [go.wde](https://github.com/skelterjohn/go.wde) for graphics and events:
