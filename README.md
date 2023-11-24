@@ -1,6 +1,6 @@
 # balls-sdl
 
-[![Build Status](https://travis-ci.org/icza/balls-sdl.svg?branch=master)](https://travis-ci.org/icza/balls-sdl)
+![Build Status](https://github.com/icza/balls-sdl/actions/workflows/go.yml/badge.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/icza/balls-sdl.svg)](https://pkg.go.dev/github.com/icza/balls-sdl)
 [![Go Report Card](https://goreportcard.com/badge/github.com/icza/balls-sdl)](https://goreportcard.com/report/github.com/icza/balls-sdl)
 
