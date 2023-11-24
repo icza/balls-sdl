@@ -19,7 +19,7 @@ jobs:
     - name: Install SDL2 dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install apt install libsdl2{,-image,-mixer,-ttf,-gfx}-dev
+        sudo apt-get install libsdl2{,-image,-mixer,-ttf,-gfx}-dev
 
     - name: Set up Go
       uses: actions/setup-go@v4
